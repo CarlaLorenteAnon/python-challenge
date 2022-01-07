@@ -6,6 +6,7 @@ with open(csvpath, 'r') as csvfile:
     csv_header = next(csvreader) #reads the head row first
     total_months = 0
     net_total_amount_profit = 0
+    total_change = 0
     for row in csvreader:
         total_months += 1
         if (total_months ==1): #Set the values the first time
@@ -13,14 +14,18 @@ with open(csvpath, 'r') as csvfile:
             greatest_decrease = int(row[1])
             greatest_increase_month = row[0]
             greatest_decrease_month = row[0]
-        net_total_amount_profit += int(row[1])
-        if int(row[1]) > greatest_increase:
-            greatest_increase = int(row[1])
+            previous_month_value = int(row[1])
+            #total_change = int(row[1])
+        elif int(row[1])-previous_month_value > greatest_increase:
+            greatest_increase = int(row[1])-previous_month_value
             greatest_increase_month = row[0]
-        elif int(row[1]) < greatest_decrease:
-            greatest_decrease = int(row[1])
+        elif int(row[1])-previous_month_value < greatest_decrease:
+            greatest_decrease = int(row[1])-previous_month_value
             greatest_decrease_month = row[0]
-    average_profit = net_total_amount_profit / total_months
+        net_total_amount_profit += int(row[1])
+        total_change += (int(row[1]) - previous_month_value)
+        previous_month_value = int(row[1])
+    average_profit = total_change / (total_months -1)
 
 #Print to the terminal
 print("Financial Analysis")
@@ -32,8 +37,13 @@ print("Greatest Increase in Profits: {} (${})".format(greatest_increase_month, g
 print("Greatest Decrease in Profits: {} (${})".format(greatest_decrease_month, greatest_decrease))
 
 # #Print analysis to the file
-# output_path = os.path.join("..", "output","new.csv")
-# with open(output_path, 'w') as csvfile:
-#     #initialize csv.writer
-#     csvwriter = csv.writer(csvfile, delimeter = ',')
-
+#output_path = os.path.join("..","output_PyBank.txt")
+#print(output_path)
+with open("output_PyBank.txt", 'w') as txtfile:
+    txtfile.write("Financial Analysis\n")
+    txtfile.write("--------------------\n")
+    txtfile.write("Total Months: {}\n".format(total_months))
+    txtfile.write("Total: ${}\n".format(net_total_amount_profit))
+    txtfile.write("Average Change: $%.2f\n" % (average_profit))
+    txtfile.write("Greatest Increase in Profits: {} (${})\n".format(greatest_increase_month, greatest_increase))
+    txtfile.write("Greatest Decrease in Profits: {} (${})\n".format(greatest_decrease_month, greatest_decrease))
